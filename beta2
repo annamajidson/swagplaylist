@@ -711,7 +711,11 @@
             };
 
             const backgroundStyle = {
-                background: 'linear-gradient(135deg, #a8d5e2 0%, #b8dfe8 20%, #dce9f2 40%, #f5d5e6 60%, #e8c4d8 80%, #a8c5d6 100%)',
+                backgroundImage: 'url("SWAG-background.png")',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                backgroundAttachment: 'fixed',
                 position: 'relative',
                 minHeight: '100vh'
             };
