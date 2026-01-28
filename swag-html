@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Playlist Swag ✨</title>
+    
+    <!-- React and ReactDOM from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        .glitter {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #fff, #ffd700);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkle 2s ease-in-out infinite;
+            box-shadow: 0 0 6px #ffd700;
+        }
+        
+        .title-gradient {
+            font-family: "Comic Sans MS", "Chalkboard SE", "Bradley Hand", cursive;
+            background: linear-gradient(45deg, #ff6ec7, #b06ce8, #7dd3fc, #fbbf24, #ff6ec7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
+            filter: drop-shadow(0 0 8px rgba(255, 110, 199, 0.6)) drop-shadow(0 0 15px rgba(176, 108, 232, 0.4));
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+        
+        // Lucide React icon components
+        const Search = () => <i data-lucide="search"></i>;
+        const Plus = () => <i data-lucide="plus"></i>;
+        const Music = () => <i data-lucide="music"></i>;
+        const User = () => <i data-lucide="user"></i>;
+        const X = () => <i data-lucide="x"></i>;
+
+        function PlaylistCreator() {
+            const [playlist, setPlaylist] = useState([]);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [searchResults, setSearchResults] = useState([]);
+            const [selectedSong, setSelectedSong] = useState(null);
+            const [ipodSelection, setIpodSelection] = useState(0);
+            const [ipodColor, setIpodColor] = useState('white');
+
+            // iPod color schemes
+            const colorSchemes = {
+                white: {
+                    body: 'from-slate-100 to-white',
+                    border: 'border-slate-200',
+                    wheel: 'from-slate-100 to-slate-300'
+                },
+                black: {
+                    body: 'from-slate-800 to-slate-900',
+                    border: 'border-slate-700',
+                    wheel: 'from-slate-700 to-slate-900'
+                },
+                silver: {
+                    body: 'from-slate-300 to-slate-200',
+                    border: 'border-slate-400',
+                    wheel: 'from-slate-300 to-slate-500'
+                },
+                blue: {
+                    body: 'from-blue-400 to-blue-500',
+                    border: 'border-blue-600',
+                    wheel: 'from-blue-300 to-blue-500'
+                },
+                pink: {
+                    body: 'from-pink-300 to-pink-400',
+                    border: 'border-pink-500',
+                    wheel: 'from-pink-200 to-pink-400'
+                },
+                green: {
+                    body: 'from-green-400 to-green-500',
+                    border: 'border-green-600',
+                    wheel: 'from-green-300 to-green-500'
+                }
+            };
+
+            // Simulated song database with credits - diverse genres
+            const songDatabase = [
+                // Pop
+                {
+                    id: 1,
+                    title: "Blinding Lights",
+                    artist: "The Weeknd",
+                    album: "After Hours",
+                    writers: ["Abel Tesfaye", "Max Martin", "Oscar Holter"],
+                    producers: ["Max Martin", "Oscar Holter"],
+                    year: 2019,
+                    platforms: { spotify: "spotify:track:0VjIjW4GlUZAMYd2vXMi3b", apple: "apple:1488408568", youtube: "youtube:fHI8X4OXluQ" }
+                },
+                {
+                    id: 2,
+                    title: "Levitating",
+                    artist: "Dua Lipa",
+                    album: "Future Nostalgia",
+                    writers: ["Dua Lipa", "Clarence Coffee Jr.", "Sarah Hudson", "Stephen Kozmeniuk"],
+                    producers: ["Koz", "Stuart Price"],
+                    year: 2020,
+                    platforms: { spotify: "spotify:track:463CkQjx2Zk1yXoBuierM9", apple: "apple:1498166126", youtube: "youtube:TUVcZfQe-Kw" }
+                },
+                // Hip-Hop/Rap
+                {
+                    id: 3,
+                    title: "HUMBLE.",
+                    artist: "Kendrick Lamar",
+                    album: "DAMN.",
+                    writers: ["Kendrick Lamar", "Mike Will Made-It"],
+                    producers: ["Mike Will Made-It"],
+                    year: 2017,
+                    platforms: { spotify: "spotify:track:7KXjTSCq5nL1LoYtL7XAwS", apple: "apple:1440873069", youtube: "youtube:tvTRZJ-4EyI" }
+                },
+                {
+                    id: 4,
+                    title: "Sicko Mode",
+                    artist: "Travis Scott",
+                    album: "ASTROWORLD",
+                    writers: ["Travis Scott", "Drake", "Hit-Boy", "Tay Keith"],
+                    producers: ["Hit-Boy", "Tay Keith", "CuBeatz"],
+                    year: 2018,
+                    platforms: { spotify: "spotify:track:2xLMifQCjDGFmkHkpNLD9h", apple: "apple:1421241217", youtube: "youtube:6ONRf7h3Mdk" }
+                },
+                // Rock/Alternative
+                {
+                    id: 5,
+                    title: "Do I Wanna Know?",
+                    artist: "Arctic Monkeys",
+                    album: "AM",
+                    writers: ["Alex Turner"],
+                    producers: ["James Ford", "Ross Orton"],
+                    year: 2013,
+                    platforms: { spotify: "spotify:track:5FVd6KXrgO9B3JPmC8OPst", apple: "apple:663097964", youtube: "youtube:bpOSxM0rNPM" }
+                },
+                {
+                    id: 6,
+                    title: "Mr. Brightside",
+                    artist: "The Killers",
+                    album: "Hot Fuss",
+                    writers: ["Brandon Flowers", "Dave Keuning"],
+                    producers: ["Jeff Saltzman", "The Killers"],
+                    year: 2003,
+                    platforms: { spotify: "spotify:track:003vvx7Niy0yvhvHt4a68B", apple: "apple:658654837", youtube: "youtube:gGdGFtwCNBE" }
+                },
+                // R&B/Soul
+                {
+                    id: 7,
+                    title: "Redbone",
+                    artist: "Childish Gambino",
+                    album: "Awaken, My Love!",
+                    writers: ["Donald Glover", "Ludwig Göransson"],
+                    producers: ["Ludwig Göransson"],
+                    year: 2016,
+                    platforms: { spotify: "spotify:track:0wXuerDYiBnERgIpbb3JBR", apple: "apple:1440873074", youtube: "youtube:Kp7eSUU9oy8" }
+                },
+                {
+                    id: 8,
+                    title: "Earned It",
+                    artist: "The Weeknd",
+                    album: "Fifty Shades of Grey OST",
+                    writers: ["Abel Tesfaye", "Stephan Moccio", "Jason Quenneville", "Ahmad Balshe"],
+                    producers: ["Stephan Moccio", "DaHeala"],
+                    year: 2014,
+                    platforms: { spotify: "spotify:track:4hsj0R98fRJSSbZfZqBh8l", apple: "apple:956392210", youtube: "youtube:waU75jdUnYw" }
+                },
+                // Electronic/Dance
+                {
+                    id: 9,
+                    title: "One More Time",
+                    artist: "Daft Punk",
+                    album: "Discovery",
+                    writers: ["Thomas Bangalter", "Guy-Manuel de Homem-Christo", "Anthony Moore"],
+                    producers: ["Daft Punk"],
+                    year: 2000,
+                    platforms: { spotify: "spotify:track:0DiWol3AO6WpXZgp0goxAV", apple: "apple:697194953", youtube: "youtube:FGBhQbmPwH8" }
+                },
+                {
+                    id: 10,
+                    title: "Strobe",
+                    artist: "deadmau5",
+                    album: "For Lack of a Better Name",
+                    writers: ["Joel Zimmerman"],
+                    producers: ["deadmau5"],
+                    year: 2009,
+                    platforms: { spotify: "spotify:track:0VlXfcHVH5HqLJxNZzfRZL", apple: "apple:331931397", youtube: "youtube:tKi9Z-f6qX4" }
+                },
+                // Indie
+                {
+                    id: 11,
+                    title: "Electric Feel",
+                    artist: "MGMT",
+                    album: "Oracular Spectacular",
+                    writers: ["Andrew VanWyngarden", "Ben Goldwasser"],
+                    producers: ["Dave Fridmann"],
+                    year: 2007,
+                    platforms: { spotify: "spotify:track:3FtYbEfBqAlGO46NUDQSAt", apple: "apple:255969859", youtube: "youtube:MmZexg8sxyk" }
+                },
+                {
+                    id: 12,
+                    title: "Take Me Out",
+                    artist: "Franz Ferdinand",
+                    album: "Franz Ferdinand",
+                    writers: ["Alex Kapranos", "Nick McCarthy"],
+                    producers: ["Jack Endino", "Franz Ferdinand"],
+                    year: 2004,
+                    platforms: { spotify: "spotify:track:2yvlOYfamgJ1l0CxGDJQQi", apple: "apple:657993042", youtube: "youtube:GhCXAiNz9Jo" }
+                },
+                // Jazz/Neo-Soul
+                {
+                    id: 13,
+                    title: "Them Changes",
+                    artist: "Thundercat",
+                    album: "The Beyond / Where the Giants Roam",
+                    writers: ["Stephen Bruner"],
+                    producers: ["Flying Lotus"],
+                    year: 2015,
+                    platforms: { spotify: "spotify:track:5YZNxrGbjCCj0pRt4ZYDNe", apple: "apple:1440833564", youtube: "youtube:GNCd_ERZvZM" }
+                },
+                {
+                    id: 14,
+                    title: "So What",
+                    artist: "Miles Davis",
+                    album: "Kind of Blue",
+                    writers: ["Miles Davis"],
+                    producers: ["Teo Macero", "Irving Townsend"],
+                    year: 1959,
+                    platforms: { spotify: "spotify:track:7gEMKzGHWLfY8VqJnN86d3", apple: "apple:268443092", youtube: "youtube:zqNTltOGh5c" }
+                },
+                // Classic Rock
+                {
+                    id: 15,
+                    title: "Bohemian Rhapsody",
+                    artist: "Queen",
+                    album: "A Night at the Opera",
+                    writers: ["Freddie Mercury"],
+                    producers: ["Roy Thomas Baker", "Queen"],
+                    year: 1975,
+                    platforms: { spotify: "spotify:track:4u7EnebtmKWzUH433cf5Qv", apple: "apple:1440650428", youtube: "youtube:fJ9rUzIMcZQ" }
+                },
+                {
+                    id: 16,
+                    title: "Stairway to Heaven",
+                    artist: "Led Zeppelin",
+                    album: "Led Zeppelin IV",
+                    writers: ["Jimmy Page", "Robert Plant"],
+                    producers: ["Jimmy Page"],
+                    year: 1971,
+                    platforms: { spotify: "spotify:track:5CQ30WqJwcep0pYcV4AMNc", apple: "apple:580708175", youtube: "youtube:QkF3oxziUI4" }
+                },
+                // Latin
+                {
+                    id: 17,
+                    title: "Bailando",
+                    artist: "Enrique Iglesias",
+                    album: "Sex and Love",
+                    writers: ["Enrique Iglesias", "Descemer Bueno", "Gente de Zona"],
+                    producers: ["Carlos Paucer"],
+                    year: 2014,
+                    platforms: { spotify: "spotify:track:6GG73Jik4jUlQCkKg9JuGO", apple: "apple:862046549", youtube: "youtube:NUsoVlDFqZg" }
+                },
+                {
+                    id: 18,
+                    title: "Despacito",
+                    artist: "Luis Fonsi ft. Daddy Yankee",
+                    album: "Vida",
+                    writers: ["Luis Fonsi", "Erika Ender", "Daddy Yankee"],
+                    producers: ["Mauricio Rengifo", "Andrés Torres"],
+                    year: 2017,
+                    platforms: { spotify: "spotify:track:6habFhsOp2NvshLv26DqMb", apple: "apple:1447505608", youtube: "youtube:kJQP7kiw5Fk" }
+                },
+                // Country
+                {
+                    id: 19,
+                    title: "Jolene",
+                    artist: "Dolly Parton",
+                    album: "Jolene",
+                    writers: ["Dolly Parton"],
+                    producers: ["Bob Ferguson"],
+                    year: 1973,
+                    platforms: { spotify: "spotify:track:3MGLOhYhvPSeDsTSeHvziT", apple: "apple:1440858491", youtube: "youtube:Ixrje2rXLMA" }
+                },
+                {
+                    id: 20,
+                    title: "Tennessee Whiskey",
+                    artist: "Chris Stapleton",
+                    album: "Traveller",
+                    writers: ["Chris Stapleton", "Dean Dillon"],
+                    producers: ["Dave Cobb"],
+                    year: 2015,
+                    platforms: { spotify: "spotify:track:4KVm7JHZCQZAQqFhTUqnRl", apple: "apple:1440858489", youtube: "youtube:4zAThXFOy2c" }
+                }
+            ];
+
+            React.useEffect(() => {
+                lucide.createIcons();
+            });
+
+            const handleSearch = (query) => {
+                setSearchQuery(query);
+                if (query.trim() === '') {
+                    setSearchResults([]);
+                    return;
+                }
+                
+                const results = songDatabase.filter(song => 
+                    song.title.toLowerCase().includes(query.toLowerCase()) ||
+                    song.artist.toLowerCase().includes(query.toLowerCase()) ||
+                    song.album.toLowerCase().includes(query.toLowerCase())
+                );
+                setSearchResults(results);
+            };
+
+            const addToPlaylist = (song) => {
+                if (!playlist.find(s => s.id === song.id)) {
+                    setPlaylist([...playlist, song]);
+                    setIpodSelection(playlist.length);
+                }
+            };
+
+            const removeFromPlaylist = (songId) => {
+                setPlaylist(playlist.filter(s => s.id !== songId));
+                if (ipodSelection >= playlist.length - 1) {
+                    setIpodSelection(Math.max(0, playlist.length - 2));
+                }
+            };
+
+            const handleIpodScroll = (direction) => {
+                if (playlist.length === 0) return;
+                
+                if (direction === 'up') {
+                    setIpodSelection((prev) => (prev > 0 ? prev - 1 : playlist.length - 1));
+                } else {
+                    setIpodSelection((prev) => (prev < playlist.length - 1 ? prev + 1 : 0));
+                }
+            };
+
+            const backgroundStyle = {
+                background: 'linear-gradient(135deg, #a8d5e2 0%, #b8dfe8 20%, #dce9f2 40%, #f5d5e6 60%, #e8c4d8 80%, #a8c5d6 100%)',
+                position: 'relative',
+                minHeight: '100vh'
+            };
+
+            return (
+                <div className="min-h-screen p-8" style={backgroundStyle}>
+                    {/* Glitter overlay */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{zIndex: 0}}>
+                        <div className="glitter" style={{top: '5%', left: '10%', animationDelay: '0s'}}></div>
+                        <div className="glitter" style={{top: '15%', left: '85%', animationDelay: '0.5s'}}></div>
+                        <div className="glitter" style={{top: '25%', left: '20%', animationDelay: '1s'}}></div>
+                        <div className="glitter" style={{top: '35%', left: '75%', animationDelay: '1.5s'}}></div>
+                        <div className="glitter" style={{top: '45%', left: '30%', animationDelay: '0.3s'}}></div>
+                        <div className="glitter" style={{top: '55%', left: '65%', animationDelay: '0.8s'}}></div>
+                        <div className="glitter" style={{top: '65%', left: '15%', animationDelay: '1.2s'}}></div>
+                        <div className="glitter" style={{top: '75%', left: '80%', animationDelay: '0.6s'}}></div>
+                        <div className="glitter" style={{top: '85%', left: '40%', animationDelay: '1.8s'}}></div>
+                        <div className="glitter" style={{top: '10%', left: '50%', animationDelay: '0.9s'}}></div>
+                        <div className="glitter" style={{top: '40%', left: '90%', animationDelay: '1.4s'}}></div>
+                        <div className="glitter" style={{top: '60%', left: '5%', animationDelay: '0.2s'}}></div>
+                        <div className="glitter" style={{top: '80%', left: '55%', animationDelay: '1.6s'}}></div>
+                        <div className="glitter" style={{top: '20%', left: '45%', animationDelay: '0.7s'}}></div>
+                        <div className="glitter" style={{top: '70%', left: '25%', animationDelay: '1.1s'}}></div>
+                    </div>
+                    
+                    <div className="relative" style={{zIndex: 1}}>
+                        <div className="max-w-7xl mx-auto">
+                            {/* Header */}
+                            <div className="text-center mb-12">
+                                <h1 className="text-6xl font-bold mb-6 tracking-wide title-gradient">
+                                    ✨ Playlist Swag ✨
+                                </h1>
+                                <p className="text-slate-700 text-lg font-light drop-shadow-sm">Create cross-platform playlists with full song credits</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {/* Left Column - Search & Song Details */}
+                                <div className="space-y-6">
+                                    {/* Search Bar */}
+                                    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+                                        <div className="relative">
+                                            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" style={{width: '20px', height: '20px'}}>
+                                                <Search />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder="Search for songs, artists, or albums..."
+                                                value={searchQuery}
+                                                onChange={(e) => handleSearch(e.target.value)}
+                                                className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent text-slate-700"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Search Results */}
+                                    {searchResults.length > 0 && (
+                                        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+                                            <h3 className="text-lg font-medium text-slate-800 mb-4">Search Results</h3>
+                                            <div className="space-y-3">
+                                                {searchResults.map(song => (
+                                                    <div
+                                                        key={song.id}
+                                                        className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer border border-slate-100"
+                                                        onClick={() => {
+                                                            setSelectedSong(song);
+                                                            setTimeout(() => lucide.createIcons(), 0);
+                                                        }}
+                                                    >
+                                                        <div className="flex-1">
+                                                            <p className="font-medium text-slate-800">{song.title}</p>
+                                                            <p className="text-sm text-slate-500">{song.artist} • {song.album}</p>
+                                                        </div>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                addToPlaylist(song);
+                                                            }}
+                                                            className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+                                                        >
+                                                            <div style={{width: '20px', height: '20px'}} className="text-slate-600">
+                                                                <Plus />
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Song Details */}
+                                    {selectedSong && (
+                                        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+                                            <div className="flex items-start justify-between mb-4">
+                                                <h3 className="text-lg font-medium text-slate-800">Song Credits</h3>
+                                                <button
+                                                    onClick={() => setSelectedSong(null)}
+                                                    className="p-1 hover:bg-slate-100 rounded-full transition-colors"
+                                                >
+                                                    <div style={{width: '20px', height: '20px'}} className="text-slate-500">
+                                                        <X />
+                                                    </div>
+                                                </button>
+                                            </div>
+                                            
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <h4 className="text-2xl font-medium text-slate-800 mb-1">{selectedSong.title}</h4>
+                                                    <p className="text-slate-600">{selectedSong.artist}</p>
+                                                    <p className="text-sm text-slate-500">{selectedSong.album} ({selectedSong.year})</p>
+                                                </div>
+
+                                                <div className="pt-4 border-t border-slate-200">
+                                                    <div className="mb-4">
+                                                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                                            <span style={{width: '14px', height: '14px'}}><User /></span> Songwriters
+                                                        </p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {selectedSong.writers.map((writer, idx) => (
+                                                                <span key={idx} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm">
+                                                                    {writer}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                                            <span style={{width: '14px', height: '14px'}}><Music /></span> Producers
+                                                        </p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {selectedSong.producers.map((producer, idx) => (
+                                                                <span key={idx} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm">
+                                                                    {producer}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="pt-4 border-t border-slate-200">
+                                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Available On</p>
+                                                    <div className="flex gap-3">
+                                                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">Spotify</span>
+                                                        <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-lg text-sm font-medium">Apple Music</span>
+                                                        <span className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-medium">YouTube</span>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    onClick={() => addToPlaylist(selectedSong)}
+                                                    className="w-full mt-4 py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-700 transition-colors font-medium"
+                                                >
+                                                    Add to Playlist
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Right Column - iPod */}
+                                <div className="flex flex-col items-center justify-center">
+                                    {/* Color Selector */}
+                                    <div className="mb-6 bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-4">
+                                        <p className="text-sm font-medium text-slate-600 mb-3 text-center">iPod Color</p>
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={() => setIpodColor('white')}
+                                                className={`w-10 h-10 rounded-full bg-gradient-to-br from-slate-100 to-white border-2 ${ipodColor === 'white' ? 'border-slate-800 ring-2 ring-slate-300' : 'border-slate-300'} transition-all hover:scale-110`}
+                                                title="White"
+                                            />
+                                            <button
+                                                onClick={() => setIpodColor('black')}
+                                                className={`w-10 h-10 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 border-2 ${ipodColor === 'black' ? 'border-slate-800 ring-2 ring-slate-300' : 'border-slate-700'} transition-all hover:scale-110`}
+                                                title="Black"
+                                            />
+                                            <button
+                                                onClick={() => setIpodColor('silver')}
+                                                className={`w-10 h-10 rounded-full bg-gradient-to-br from-slate-300 to-slate-200 border-2 ${ipodColor === 'silver' ? 'border-slate-800 ring-2 ring-slate-300' : 'border-slate-400'} transition-all hover:scale-110`}
+                                                title="Silver"
+                                            />
+                                            <button
+                                                onClick={() => setIpodColor('blue')}
+                                                className={`w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 border-2 ${ipodColor === 'blue' ? 'border-slate-800 ring-2 ring-blue-300' : 'border-blue-600'} transition-all hover:scale-110`}
+                                                title="Blue"
+                                            />
+                                            <button
+                                                onClick={() => setIpodColor('pink')}
+                                                className={`w-10 h-10 rounded-full bg-gradient-to-br from-pink-300 to-pink-400 border-2 ${ipodColor === 'pink' ? 'border-slate-800 ring-2 ring-pink-300' : 'border-pink-500'} transition-all hover:scale-110`}
+                                                title="Pink"
+                                            />
+                                            <button
+                                                onClick={() => setIpodColor('green')}
+                                                className={`w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-500 border-2 ${ipodColor === 'green' ? 'border-slate-800 ring-2 ring-green-300' : 'border-green-600'} transition-all hover:scale-110`}
+                                                title="Green"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="relative">
+                                        {/* iPod Body */}
+                                        <div className={`w-80 bg-gradient-to-b ${colorSchemes[ipodColor].body} rounded-[2.5rem] shadow-2xl border-4 ${colorSchemes[ipodColor].border} p-6`}>
+                                            {/* Screen */}
+                                            <div className="bg-gradient-to-b from-green-100 to-green-50 rounded-2xl border-4 border-slate-700 p-4 mb-8 h-64 overflow-hidden">
+                                                <div className="bg-white border-2 border-slate-600 rounded-lg h-full p-3 overflow-y-auto text-sm" style={{fontFamily: 'Helvetica, Arial, sans-serif'}}>
+                                                    <div className="border-b-2 border-slate-700 pb-2 mb-2">
+                                                        <p className="text-center font-bold text-slate-800">MY PLAYLIST</p>
+                                                        <p className="text-center text-xs text-slate-600">{playlist.length} songs</p>
+                                                    </div>
+                                                    
+                                                    {playlist.length === 0 ? (
+                                                        <div className="flex items-center justify-center h-32">
+                                                            <p className="text-slate-500 text-xs text-center">Add songs to start<br/>your playlist</p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-1">
+                                                            {playlist.map((song, idx) => (
+                                                                <div
+                                                                    key={song.id}
+                                                                    className={`p-2 rounded ${
+                                                                        idx === ipodSelection
+                                                                            ? 'bg-blue-600 text-white'
+                                                                            : 'text-slate-800'
+                                                                    }`}
+                                                                >
+                                                                    <p className="font-bold text-xs truncate">{song.title}</p>
+                                                                    <p className="text-xs truncate">{song.artist}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Click Wheel */}
+                                            <div className="relative w-48 h-48 mx-auto">
+                                                <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${colorSchemes[ipodColor].wheel} shadow-inner`}>
+                                                    <div className="absolute inset-2 rounded-full border-2 border-slate-400">
+                                                        <button
+                                                            className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-8 flex items-center justify-center text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors"
+                                                            onClick={() => {}}
+                                                        >
+                                                            MENU
+                                                        </button>
+                                                        
+                                                        <button
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-12 flex items-center justify-center text-slate-700 hover:text-slate-900 transition-colors"
+                                                            onClick={() => handleIpodScroll('down')}
+                                                        >
+                                                            <div className="w-0 h-0 border-t-8 border-t-transparent border-l-8 border-l-slate-700 border-b-8 border-b-transparent"></div>
+                                                        </button>
+                                                        
+                                                        <button
+                                                            className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-8 flex items-center justify-center text-slate-700 hover:text-slate-900 transition-colors"
+                                                            onClick={() => {}}
+                                                        >
+                                                            <div className="flex gap-1">
+                                                                <div className="w-0 h-0 border-t-6 border-t-transparent border-l-8 border-l-slate-700 border-b-6 border-b-transparent"></div>
+                                                                <div className="w-1 h-3 bg-slate-700"></div>
+                                                                <div className="w-1 h-3 bg-slate-700"></div>
+                                                            </div>
+                                                        </button>
+                                                        
+                                                        <button
+                                                            className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-12 flex items-center justify-center text-slate-700 hover:text-slate-900 transition-colors"
+                                                            onClick={() => handleIpodScroll('up')}
+                                                        >
+                                                            <div className="w-0 h-0 border-t-8 border-t-transparent border-r-8 border-r-slate-700 border-b-8 border-b-transparent"></div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <button
+                                                    onClick={() => {
+                                                        if (playlist[ipodSelection]) {
+                                                            setSelectedSong(playlist[ipodSelection]);
+                                                            setTimeout(() => lucide.createIcons(), 0);
+                                                        }
+                                                    }}
+                                                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-slate-200 to-slate-400 shadow-lg hover:from-slate-300 hover:to-slate-500 transition-all active:scale-95"
+                                                >
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Current Playlist (List View) */}
+                            {playlist.length > 0 && (
+                                <div className="mt-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+                                    <h3 className="text-lg font-medium text-slate-800 mb-4">Your Playlist</h3>
+                                    <div className="space-y-2">
+                                        {playlist.map((song, idx) => (
+                                            <div
+                                                key={song.id}
+                                                className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border border-slate-100"
+                                            >
+                                                <div className="flex items-center gap-4 flex-1">
+                                                    <span className="text-slate-400 font-mono text-sm w-8">{idx + 1}</span>
+                                                    <div>
+                                                        <p className="font-medium text-slate-800">{song.title}</p>
+                                                        <p className="text-sm text-slate-500">{song.artist}</p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => removeFromPlaylist(song.id)}
+                                                    className="p-2 hover:bg-red-50 rounded-full transition-colors group"
+                                                >
+                                                    <div style={{width: '18px', height: '18px'}} className="text-slate-400 group-hover:text-red-500">
+                                                        <X />
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<PlaylistCreator />);
+        
+        // Initialize Lucide icons after render
+        setTimeout(() => lucide.createIcons(), 100);
+    </script>
+</body>
+</html>
